@@ -6,7 +6,7 @@ services:
       build:
         context: .
         dockerfile: Dockerfile
-      container_name: web
+      container_name: taller4-app
       ports:
       - "8087:6000"
     db:
