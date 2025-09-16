@@ -3,6 +3,7 @@ FROM openjdk:17
 WORKDIR /usrapp/bin
 
 ENV PORT=6000
+ENV DOCKER_ENV=true
 
 
 # Copiar archivos compilados y dependencias

@@ -207,7 +207,7 @@ docker ps
 
 ## Video de demostración
 
-En el siguiente video se muestra el funcionamiento completo de la aplicación, desde la construcción de la imagen Docker hasta su despliegue en AWS EC2:
+En el siguiente video se muestra el funcionamiento de la aplicación una vez deslegado mediante docker en EC2:
 
 https://github.com/Juan-Jose-D/Taller4-AREP/raw/main/images/VideoArep.mp4
 

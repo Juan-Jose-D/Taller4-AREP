@@ -16,7 +16,18 @@ import java.util.function.BiFunction;
 
 public class HttpServer {
 
-    private static String staticFilesFolder = "/usrapp/bin/public";
+    private static String staticFilesFolder;
+    
+    // Inicializar la ruta de archivos estáticos según el entorno
+    static {
+        // Detectar si estamos en Docker o en desarrollo local
+        String dockerEnv = System.getenv("DOCKER_ENV");
+        if ("true".equals(dockerEnv)) {
+            staticFilesFolder = "/usrapp/bin/public";
+        } else {
+            staticFilesFolder = "public";
+        }
+    }
     public static Map<String, Method> services = new HashMap<>();
     public static Map<String, Method> postServices = new HashMap<>();
     public static Map<String, BiFunction<HttpRequest, HttpResponse, String>> getRoutes = new HashMap<>();
