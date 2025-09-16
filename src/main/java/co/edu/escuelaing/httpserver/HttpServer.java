@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
 
 public class HttpServer {
 
-    private static String staticFilesFolder = "public";
+    private static String staticFilesFolder = "/usrapp/bin/public";
     public static Map<String, Method> services = new HashMap<>();
     public static Map<String, Method> postServices = new HashMap<>();
     public static Map<String, BiFunction<HttpRequest, HttpResponse, String>> getRoutes = new HashMap<>();
@@ -26,36 +26,32 @@ public class HttpServer {
     }
 
     public static void loadServices() throws ClassNotFoundException, IOException {
-        File srcDir = new File("src/main/java");
-        loadServicesFromDir(srcDir, "");
+        // Registrar manualmente los controladores
+        registerController("co.edu.escuelaing.microspringboot.examples.ClaseController");
+        registerController("co.edu.escuelaing.microspringboot.examples.GreetingController");
     }
 
-    private static void loadServicesFromDir(File dir, String pkg) throws ClassNotFoundException {
-        for (File file : dir.listFiles()) {
-            if (file.isDirectory()) {
-                loadServicesFromDir(file, pkg + file.getName() + ".");
-            } else if (file.getName().endsWith(".java")) {
-                String className = pkg + file.getName().replace(".java", "");
-                try {
-                    Class<?> c = Class.forName(className);
-                    if (c.isAnnotationPresent(RestController.class)) {
-                        Method[] methods = c.getDeclaredMethods();
-                        for (Method m : methods) {
-                            if (m.isAnnotationPresent(GetMapping.class)) {
-                                String mapping = m.getAnnotation(GetMapping.class).value();
-                                services.put(mapping, m);
-                            }
-                            if (m.isAnnotationPresent(PostMapping.class)) {
-                                String mapping = m.getAnnotation(PostMapping.class).value();
-                                postServices.put(mapping, m);
-                            }
-                        }
+    private static void registerController(String className) {
+        try {
+            Class<?> c = Class.forName(className);
+            if (c.isAnnotationPresent(RestController.class)) {
+                Method[] methods = c.getDeclaredMethods();
+                for (Method m : methods) {
+                    if (m.isAnnotationPresent(GetMapping.class)) {
+                        String mapping = m.getAnnotation(GetMapping.class).value();
+                        services.put(mapping, m);
                     }
-                } catch (Throwable t) {
+                    if (m.isAnnotationPresent(PostMapping.class)) {
+                        String mapping = m.getAnnotation(PostMapping.class).value();
+                        postServices.put(mapping, m);
+                    }
                 }
             }
+        } catch (Throwable t) {
+            System.err.println("Error registrando controlador: " + className);
         }
     }
+
 
     public static void runServer(String[] args) throws IOException, URISyntaxException, ClassNotFoundException,
             IllegalAccessException, InvocationTargetException {
@@ -64,11 +60,26 @@ public class HttpServer {
         get("/manual/hello",
                 (req, res) -> "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello from manual route!");
 
+        // Get port from environment variable or use default
+        int port = 35000; // default port
+        String portEnv = System.getenv("PORT");
+        if (portEnv != null) {
+            try {
+                port = Integer.parseInt(portEnv);
+                System.out.println("Using port from environment: " + port);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid PORT environment variable, using default: " + port);
+            }
+        } else {
+            System.out.println("No PORT environment variable found, using default: " + port);
+        }
+
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(35000);
+            serverSocket = new ServerSocket(port);
+            System.out.println("Server listening on port: " + port);
         } catch (IOException e) {
-            System.err.println("Could not listen on port: 35000.");
+            System.err.println("Could not listen on port: " + port);
             System.exit(1);
         }
         Socket clientSocket = null;
@@ -126,7 +137,14 @@ public class HttpServer {
                 outputLine = getRoutes.get(requri.getPath()).apply(new HttpRequest(requri), new HttpResponse());
             } else {
                 String filePath = staticFilesFolder + (requri.getPath().equals("/") ? "/index.html" : requri.getPath());
-                File file = new File(filePath.startsWith("/") ? filePath.substring(1) : filePath);
+                System.out.println("[DEBUG] Solicitando archivo estático: " + filePath);
+                File staticFile = new File(filePath);
+                if (!staticFile.exists()) {
+                    System.out.println("[ERROR] Archivo estático no encontrado: " + filePath);
+                } else {
+                    System.out.println("[INFO] Archivo estático encontrado: " + filePath);
+                }
+                File file = new File(filePath);
                 if (file.exists() && !file.isDirectory()) {
                     String contentType = getContentType(filePath);
                     byte[] fileBytes = Files.readAllBytes(file.toPath());
@@ -149,7 +167,7 @@ public class HttpServer {
             in.close();
             clientSocket.close();
         }
-        serverSocket.close();
+        // No cerrar el serverSocket aquí, para aceptar múltiples conexiones
     }
 
     private static String invokePostService(URI requri, String body)

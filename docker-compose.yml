@@ -10,7 +10,7 @@ services:
       ports:
       - "8087:6000"
     db:
-      image: mongo:3.6.1
+      image: mongo:latest
       container_name: db
       volumes:
       - mongodb:/data/db

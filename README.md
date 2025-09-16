@@ -105,7 +105,7 @@ cd Taller4-AREP
 Compile el proyecto con Maven:
 
 ```bash
-mvn clean compile
+mvn clean install
 ```
 
 Y ejecute el servidor:
@@ -133,8 +133,19 @@ http://localhost:35000/clase.html
 En la raíz del proyecto, construya la imagen:
 
 ```sh
-docker build -t arep-taller4 .
+docker build -t taller4 .
 ```
+
+A partir de la imagen creada cree tres instancias de un contenedor docker independiente de la consola (opción “-d”) y con el puerto 6000 enlazado a un puerto físico de su máquina (opción -p):
+
+
+```sh
+docker run -d -p 34000:6000 --name firstdockercontainer taller4
+docker run -d -p 34001:6000 --name firstdockercontainer2 taller4
+docker run -d -p 34002:6000 --name firstdockercontainer3 taller4
+```
+
+
 
 ### 4. Ejecutar con Docker Compose
 
@@ -146,18 +157,30 @@ docker-compose up -d
 
 Esto crea el contenedor de la aplicación y una instancia de MongoDB.
 
+Verficamos que todo esté creado correctamente:
+
+```sh
+docker ps
+```
+
+![alt text](/images/image.png)
+
+
 ### 5. Subir la imagen a DockerHub
+
 
 1. Cree un repositorio en DockerHub.
 2. Etiquete la imagen:
    ```sh
-   docker tag arep-taller4 <usuario_dockerhub>/arep-taller4:latest
+    docker tag taller4 juanjosed/taller4
    ```
 3. Inicie sesión y suba la imagen:
    ```sh
    docker login
-   docker push <usuario_dockerhub>/arep-taller4:latest
+   docker push juanjosed/taller4:latest
    ```
+
+![alt text](/images/image-1.png)
 
 ### 6. Desplegar en AWS EC2
 
@@ -172,11 +195,21 @@ Esto crea el contenedor de la aplicación y una instancia de MongoDB.
 3. Cierre sesión y vuelva a ingresar para aplicar los permisos.
 4. Ejecute el contenedor usando la imagen subida:
    ```sh
-   docker run -d -p 42000:6000 --name taller4aws <usuario_dockerhub>/arep-taller4:latest
+   docker run -d -p 42000:6000 -e DOCKER_ENV=true --name taller4 juanjosed/taller4
    ```
 5. Abra el puerto en el Security Group de la instancia EC2.
-6. Acceda a la aplicación desde el navegador usando la URL pública de la instancia EC2.
+6. Acceda a la aplicación desde el navegador usando la IP pública de la instancia EC2.
 
+  ```sh
+   http://3.88.221.160:42000/
+   ```
+![alt text](/images/image-2.png)
+
+## Video de demostración
+
+En el siguiente video se muestra el funcionamiento completo de la aplicación, desde la construcción de la imagen Docker hasta su despliegue en AWS EC2:
+
+https://github.com/Juan-Jose-D/Taller4-AREP/raw/main/images/VideoArep.mp4
 
 ---
 
