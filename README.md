@@ -197,15 +197,22 @@ docker ps
    ```sh
    docker run -d -p 42000:6000 -e DOCKER_ENV=true --name taller4 juanjosed/taller4
    ```
+
+![alt text](/images/image-2.png)
+
+
 5. Abra el puerto en el Security Group de la instancia EC2.
+
+![alt text](/images/image-3.png)
+
 6. Acceda a la aplicación desde el navegador usando la IP pública de la instancia EC2.
 
   ```sh
    http://3.88.221.160:42000/
    ```
-![alt text](/images/image-2.png)
+![alt text](/images/image-4.png)
 
-## Video de demostración
+### Video de demostración
 
 En el siguiente video se muestra el funcionamiento de la aplicación una vez deslegado mediante docker en EC2:
 
