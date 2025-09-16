@@ -212,6 +212,8 @@ docker ps
    ```
 ![alt text](/images/image-4.png)
 
+![alt text](/images/image-5.png)
+
 ### Video de demostración
 
 En el siguiente video se muestra el funcionamiento de la aplicación una vez deslegado mediante docker en EC2:
